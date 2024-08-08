@@ -116,7 +116,8 @@ class SocialAuthController extends Controller
     {
         // Validate the incoming request
         $validator = Validator::make($request->all(), [
-            'id_token' => 'required|string',
+            'token' => 'required|string',
+            'email' => 'required|email:rfc',
         ]);
 
         if ($validator->fails()) {
@@ -127,16 +128,26 @@ class SocialAuthController extends Controller
         }
         
         // Extract Google user data from the request
-        $google_token = $request->input('id_token');
+        $google_token = $request->input('token');
+        $email = $request->input('email');
 
 
         try {
             // Retrieve user information from Google
             $googleUser = Socialite::driver('google')->userFromToken($google_token);
+            
+            // Check if the token email matches the email provided
+            if ($googleUser->email !== $email) {
+                return response()->json([
+                    'status_code' => 400,
+                    "error" => "Bad Request",
+                    'message' => 'Invalid Google token'
+                ], 401);
+            }
     
             // Create or update the user
             $user = User::updateOrCreate(
-                ['email' => $googleUser->email],
+                ['email' => $email],
                 [
                     'password' => Hash::make(Str::random(12)), // Random password for social sign-ins
                     'social_id' => $googleUser->id,
