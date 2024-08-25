@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SubscriptionPlan;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class BillingPlanController extends Controller
 {
@@ -42,7 +43,59 @@ class BillingPlanController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'frequency' => 'required|string|in:Monthly,Yearly',
+            'is_active' => 'boolean',
+            'amount' => 'required|numeric|min:0',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+         // If validation fails, return a 400 Bad Request response
+         if ($validator->fails()) {
+            return response()->json([
+                'data' => null,
+                'error' => 'Bad Request',
+                'message' => $validator->errors()->first(),
+                'status_code' => Response::HTTP_BAD_REQUEST
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            // Create a new billing plan
+            $billingPlan = SubscriptionPlan::create([
+                'name' => $request->input('name'),
+                'duration' => $request->input('frequency'),
+                // 'is_active' => $request->input('is_active'),
+                'price' => $request->input('amount'),
+                'description' => $request->input('description'),
+            ]);
+
+            // Return a 201 Created response with the billing plan data
+            return response()->json([
+                'data' => [
+                    'id' => $billingPlan->id,
+                    'name' => $billingPlan->name,
+                    'frequency' => $billingPlan->duration,
+                    // 'is_active' => $billingPlan->is_active,
+                    'amount' => $billingPlan->price,
+                    'description' => $billingPlan->description,
+                    'created_at' => $billingPlan->created_at->toIso8601String(),
+                    'updated_at' => $billingPlan->updated_at->toIso8601String(),
+                ],
+                'message' => 'Billing plan created successfully',
+                'status_code' => Response::HTTP_CREATED
+            ], Response::HTTP_CREATED);
+
+        } catch (\Exception $e) {
+            // If an unexpected error occurs, return a 500 Internal Server Error response
+            return response()->json([
+                'data' => null,
+                'error' => 'Internal Server Error',
+                'message' => 'An unexpected error occurred',
+                'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**

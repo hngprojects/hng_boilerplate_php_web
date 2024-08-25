@@ -170,10 +170,20 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::findOrFail($org_id);
 
+        if (!$organisation) {
+            return response()->json([
+                'data' => null,
+                'error' => 'Not Found',
+                'message' => 'Organization not found',
+                'status_code' => 404
+            ], 404);
+        }
+
         // Use $request->auth instead of Auth::user()
         if (!$request->user()->can('removeUser', $organisation)) {
             return response()->json([
-                'status' => 'Forbidden',
+                'data' => null,
+                'error' => 'Unauthorized',
                 'message' => 'Only admin can remove users',
                 'status_code' => 403
             ], 403);
@@ -183,8 +193,9 @@ class OrganisationController extends Controller
 
         if (!$user || !$organisation->users()->detach($user)) {
             return response()->json([
-                'status' => 'forbidden',
-                'message' => 'user not found',
+                'data' => null,
+                'error' => 'Not Found',
+                'message' => 'User not found',
                 'status_code' => 404
             ], 404);
         }

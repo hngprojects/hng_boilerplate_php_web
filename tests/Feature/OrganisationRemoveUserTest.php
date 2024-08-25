@@ -46,7 +46,7 @@ class OrganisationRemoveUserTest extends TestCase
 
         $response->assertStatus(403)
             ->assertJson([
-                'status' => 'Forbidden',
+                'error' => 'Unauthorized',
                 'message' => 'Only admin can remove users',
                 'status_code' => 403,
             ]);

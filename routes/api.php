@@ -149,6 +149,8 @@ Route::prefix('v1')->group(function () {
         Route::patch('/comments/edit/{commentId}', [CommentController::class, 'editComment']);
         Route::delete('/comments/{commentId}', [CommentController::class, 'deleteComment']);
         Route::get('/blogs/{blogId}/comments', [CommentController::class, 'getBlogComments']);
+
+        Route::post('/billing-plans', [BillingPlanController::class, 'store']);
     });
 
     Route::middleware('throttle:10,1')->get('/help-center/topics/search', [ArticleController::class, 'search']);
