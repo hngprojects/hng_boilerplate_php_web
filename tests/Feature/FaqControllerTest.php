@@ -44,6 +44,7 @@ class FaqControllerTest extends TestCase
                     'category',
                     'created_at',
                     'updated_at',
+                    'created_by'
                 ]
             ]);
 
@@ -58,7 +59,7 @@ class FaqControllerTest extends TestCase
         $payload = [
             'question' => 'Unauthorized question?',
             'answer' => 'This should not be created.',
-            'category' => 'Test'
+            'category' => 'Test',
         ];
 
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])
