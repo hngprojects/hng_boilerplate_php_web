@@ -26,7 +26,7 @@ class FaqController extends Controller
                 'question' => $validatedData['question'],
                 'answer' => $validatedData['answer'],
                 'category' => $validatedData['category'],
-                // 'role' => Role::USER,
+                'created_by' => auth()->user()->name,
             ]);
 
             return response()->json([
@@ -62,6 +62,7 @@ class FaqController extends Controller
                     'question' => $faq->question,
                     'answer' => $faq->answer,
                     'category' => $faq->category,
+                    'created_by' => $faq->created_by
                 ];
             });
 

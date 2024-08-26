@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('faqs', function (Blueprint $table) {
             $table->string('category')->nullable();
+            $table->string('created_by')->nullable();
         });
     }
 
