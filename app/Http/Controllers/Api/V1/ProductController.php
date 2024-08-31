@@ -272,6 +272,59 @@ class ProductController extends Controller
         ]);
     }
 
+    public function showProduct($product_id)
+    {
+        $product = Product::find($product_id);
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                "message" => "Product not found",
+                'status_code' => 404,
+            ]);
+        }
+
+        $products = Product::select(
+            'product_id',
+            'name',
+            'price',
+            'imageUrl',
+            'description',
+            'created_at',
+            'updated_at',
+            'quantity',
+            'status',
+            'size',
+            'category'
+        )->get();
+
+        $transformedProduct =  [
+            'id' => $product->product_id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'cost_price' => $product->cost_price,
+            'image' => url($product->imageUrl),
+            'description' => $product->description,
+            'quantity' => $product->quantity,
+            'category' => $product->category,
+            'status' => $product->status,
+            'size' => $product->size,
+            'created_at' => $product->created_at,
+            'updated_at' => $product->updated_at,
+            'deletedAt' => $product->deletedAt,
+
+
+
+        ];
+
+
+
+        return response()->json([
+            'status_code' => 200,
+            "message" => "Product retrieved successfully",
+            'data' => $transformedProduct
+        ]);
+    }
+
     /**
      * Update the specified resource in storage.
      */
