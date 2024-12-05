@@ -13,24 +13,23 @@ class CategoryController extends Controller
     {
         try {
 
-        $categories = Category::all();
+            $categories = Category::all();
 
-        return response()->json([
-            'status_code' => 200,
-            'message' => 'Categories returned successfully',
-            'data' => $categories,
-        ]);
-
-    }catch (\Exception $e) {
-        return response()->json([
-            'status_code' => 500,
-            'error' => [
-                'message' => 'An unexpected error occurred while processing your request.',
-                'details' => [
-                    'support_email' => 'support@example.com',
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Categories returned successfully',
+                'data' => $categories,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'error' => [
+                    'message' => 'An unexpected error occurred while processing your request.',
+                    'details' => [
+                        'support_email' => 'support@example.com',
+                    ],
                 ],
-            ],
-        ], 500);
-    }
+            ], 500);
+        }
     }
 }
