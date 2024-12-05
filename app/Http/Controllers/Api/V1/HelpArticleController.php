@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use App\Models\User;
-use Illuminate\Support\Str;
+use Illuminate\Http\Response;
 
 class HelpArticleController extends Controller
 {
@@ -224,6 +224,8 @@ class HelpArticleController extends Controller
             ], 500);
         }
     }
+
+
     public function search(Request $request)
     {
         // Rate limiting
@@ -287,29 +289,27 @@ class HelpArticleController extends Controller
     public function show($articleId)
     {
         try {
+
             $article = HelpArticle::findOrFail($articleId);
 
-            $author = User::find($article->user_id);
-            $authorName = $author ? $author->name : null;
-
-            $data = [
-                'id' => $article->article_id,
-                'title' => $article->title,
-                'content' => $article->content,
-                'author' => $authorName
-            ];
-
             return response()->json([
-                'status_code' => 200,
+                'status_code' => Response::HTTP_OK,
                 'message' => 'Request completed successfully',
-                'data' => $data
-            ], 200);
+                'data' => [
+                    'id' => $article->article_id,
+                    'title' => $article->title,
+                    'content' => $article->content,
+                    'author' => $article->user?->name
+                ]
+            ], Response::HTTP_OK);
+
         } catch (\Exception $e) {
             return response()->json([
-                'status_code' => 404,
+                'data' => null,
+                'error' => 'Help article not found',
                 'message' => 'Help article not found',
-                'data' => null
-            ], 404);
+                'status_code' => Response::HTTP_NOT_FOUND,
+            ], Response::HTTP_NOT_FOUND);
         }
     }
 }
