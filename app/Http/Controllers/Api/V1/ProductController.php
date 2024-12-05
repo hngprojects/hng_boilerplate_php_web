@@ -156,6 +156,85 @@ class ProductController extends Controller
         }
     }
 
+    public function getUserProduct(Request $request)
+    {
+        try {
+            $page = (int) $request->query('pageSize', 1);
+            $limit = (int) $request->query('pageNumber', 10);
+
+
+            // Calculate offset
+            $offset = ($page - 1) * $limit;
+
+            $products = Product::select(
+                'product_id',
+                'name',
+                'price',
+                'imageUrl',
+                'description',
+                'created_at',
+                'updated_at',
+                'quantity',
+                'status',
+                'size',
+                'category'
+            )
+
+                ->offset($offset)
+                ->limit($limit)
+                ->get();
+
+            // Get total product count
+            $totalItems = Product::count();
+            $totalPages = ceil($totalItems / $limit);
+
+            $transformedProducts = $products->map(function ($product) {
+                return [
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'cost_price' => $product->cost_price,
+                    'image' => url($product->imageUrl),
+                    'description' => $product->description,
+                    'id' => $product->product_id,
+                    'quantity' => $product->quantity,
+                    'category' => $product->category,
+                    'status' => $product->status,
+                    'size' => $product->size,
+                    'created_at' => $product->created_at,
+                    'updated_at' => $product->updated_at,
+                    'deletedAt' => $product->deletedAt,
+                ];
+            });
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Products retrieved successfully',
+                'data' => [
+                    'products' => $transformedProducts,
+                ],
+
+                'pagination' => [
+                    'totalItems' => $totalItems,
+                    'totalPages' => $totalPages,
+                    'currentPage' => $page,
+                ],
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => 'bad request',
+                'message' => 'Invalid query params passed',
+                'status_code' => 400,
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal server error',
+                'error' => $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */
